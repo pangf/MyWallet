@@ -6,7 +6,19 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    overflow: hidden;
+    /* overflow: hidden; */
+    overflow-x: hidden;
+    
+}
+.expenses__title {
+    overflow-y: hidden;
+    
+}
+.icome__title {
+    overflow-y: hidden;
+}
+.title-h1 {
+    overflow-y: hidden;
 }
 
 .clearfix::after {
