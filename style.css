@@ -20,6 +20,9 @@
 .title-h1 {
     overflow-y: hidden;
 }
+.item__delete {
+    overflow: hidden;
+}
 
 .clearfix::after {
     content: "";
