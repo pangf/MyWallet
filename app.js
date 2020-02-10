@@ -1,40 +1,45 @@
 // get current month
-let month = new Date().getMonth();
-let currentYear = new Date().getFullYear();
+function getCurrentTime() {
+	let month = new Date().getMonth();
+	let currentYear = new Date().getFullYear();
 
-const monthArr = [
-	'January',
-	'February',
-	'March',
-	'April',
-	'May',
-	'June',
-	'July',
-	'August',
-	'September',
-	'October',
-	'Novenber',
-	'December'
-];
-$('.budget__title--month').html(monthArr[month] + ' ' + currentYear);
+	const monthArr = [
+		'January',
+		'February',
+		'March',
+		'April',
+		'May',
+		'June',
+		'July',
+		'August',
+		'September',
+		'October',
+		'Novenber',
+		'December'
+	];
+
+	$('.budget__title--month').html(monthArr[month] + ' ' + currentYear);
+}
+getCurrentTime();
+
 
 // BUDGET CONTROLLER
-var budgetController = (function() {
-	var Expense = function(id, description, value) {
+var budgetController = (function () {
+	var Expense = function (id, description, value) {
 		this.id = id;
 		this.description = description;
 		this.value = value;
 	};
 
-	var Income = function(id, description, value) {
+	var Income = function (id, description, value) {
 		this.id = id;
 		this.description = description;
 		this.value = value;
 	};
 
-	var caculateTotal = function(type) {
+	var caculateTotal = function (type) {
 		var sum = 0;
-		data.allItems[type].forEach(function(current) {
+		data.allItems[type].forEach(function (current) {
 			sum = sum + current.value;
 			console.log(sum);
 		});
@@ -55,7 +60,7 @@ var budgetController = (function() {
 	};
 
 	return {
-		addItem: function(type, des, val) {
+		addItem: function (type, des, val) {
 			var newItem, ID;
 
 			//[1 2 3 4 5], next ID = 6
@@ -68,6 +73,7 @@ var budgetController = (function() {
 			} else {
 				ID = 0;
 			}
+
 
 			// Create new item based on 'inc' or 'exp' type
 			if (type === 'exp') {
@@ -82,7 +88,21 @@ var budgetController = (function() {
 			// Return the new element
 			return newItem;
 		},
-		caculateBudget: function() {
+
+		deleteItem: function (type, id) {
+			let ids,index;
+			ids = data.allItems[type].map(function (current) {
+				return current.id;
+
+			});
+			index = ids.indexOf(id);
+			if (index !== -1) {
+				data.allItems[type].splice(index, 1);
+
+			}
+
+		},
+		caculateBudget: function () {
 			//total incomes and expense
 			caculateTotal('exp');
 			caculateTotal('inc');
@@ -95,7 +115,7 @@ var budgetController = (function() {
 				data.percentages = -1;
 			}
 		},
-		getBudget: function() {
+		getBudget: function () {
 			return {
 				budget: data.budget,
 				totalInc: data.totals.inc,
@@ -103,14 +123,14 @@ var budgetController = (function() {
 				percentages: data.percentages
 			};
 		},
-		testing: function() {
+		testing: function () {
 			console.log(data);
 		}
 	};
 })();
 
 // UI CONTROLLER
-var UIController = (function() {
+var UIController = (function () {
 	var DOMstrings = {
 		inputType: '.add__type',
 		inputDescription: '.add__description',
@@ -121,13 +141,13 @@ var UIController = (function() {
 		budgetLabel: '.budget__value',
 		incomeLabel: '.budget__income--value',
 		expensesLabel: '.budget__expenses--value',
-		percentageLabel: '.budget__expenses--percentage'
-		// container: '.container',
+		percentageLabel: '.budget__expenses--percentage',
+		container: '.container',
 		// expensesPercLabel: '.item__percentage',
 		// dateLabel: '.budget__title--month'
 	};
 
-	var formatNumber = function(num, type) {
+	var formatNumber = function (num, type) {
 		var numSplit, int, dec, type;
 		/*
             + or - before number
@@ -153,14 +173,14 @@ var UIController = (function() {
 		return (type === 'exp' ? '-' : '+') + ' ' + int + '.' + dec;
 	};
 
-	var nodeListForEach = function(list, callback) {
+	var nodeListForEach = function (list, callback) {
 		for (var i = 0; i < list.length; i++) {
 			callback(list[i], i);
 		}
 	};
 
 	return {
-		getInput: function() {
+		getInput: function () {
 			return {
 				type: $(DOMstrings.inputType).val(),
 				value: parseFloat($(DOMstrings.inputValue).val()),
@@ -168,7 +188,7 @@ var UIController = (function() {
 			};
 		},
 
-		addListItem: function(obj, type) {
+		addListItem: function (obj, type) {
 			var html, newHtml, element;
 			// Create HTML string with placeholder text
 
@@ -193,7 +213,14 @@ var UIController = (function() {
 			$(element).append(newHtml);
 		},
 
-		clearFields: function() {
+		deleteListItem: function(selectID){
+			//get element parent and delete child
+			let element=document.getElementById(selectID);
+			element.parentNode.removeChild(element);
+
+		},
+
+		clearFields: function () {
 			var fields, fieldsArr;
 
 			fields = document.querySelectorAll(DOMstrings.inputDescription + ', ' + DOMstrings.inputValue);
@@ -202,13 +229,13 @@ var UIController = (function() {
 			fieldsArr = Array.prototype.slice.call(fields);
 			console.log(fieldsArr);
 
-			fieldsArr.forEach(function(current, index, array) {
+			fieldsArr.forEach(function (current, index, array) {
 				current.value = '';
 			});
 			//change focus
 			fieldsArr[0].focus();
 		},
-		displayBudget: function(obj) {
+		displayBudget: function (obj) {
 			$(DOMstrings.budgetLabel).html(obj.budget);
 			$(DOMstrings.incomeLabel).html(obj.totalInc);
 			$(DOMstrings.expensesLabel).html(obj.totalExp);
@@ -218,22 +245,44 @@ var UIController = (function() {
 				$(DOMstrings.percentageLabel).html('---');
 			}
 		},
-		getDOMstrings: function() {
+		getDOMstrings: function () {
 			return DOMstrings;
 		}
 	};
 })();
 
+
+
+
 // GLOBAL APP CONTROLLER
-var controller = (function(budgetCtrl, UICtrl) {
-	var setupEventListeners = function() {
+var controller = (function (budgetCtrl, UICtrl) {
+	var setupEventListeners = function () {
 		var DOM = UICtrl.getDOMstrings();
 
 		document.querySelector(DOM.inputBtn).addEventListener('click', ctrlAddItem);
 
-		document.addEventListener('keypress', function(event) {
+		document.addEventListener('keypress', function (event) {
 			if (event.keyCode === 13 || event.which === 13) {
 				ctrlAddItem();
+			}
+		});
+
+		$(".container").click(function ctrlDeleteItem(e) {
+
+			let splitId, type, itemId, ID;
+			itemId = e.target.closest(".item").id;
+			if (itemId) {
+				//inc-1 into type:inc; ID:1;
+				splitId = itemId.split("-");
+				type = splitId[0];
+				// ID is a string, convert into int 
+				ID = parseInt(splitId[1]);
+				//delete item form data structure
+				budgetCtrl.deleteItem(type,ID);
+				//delete item on UI
+				UICtrl.deleteListItem(itemId);
+				//update show totals
+				updateBudget();
 			}
 		});
 
@@ -242,7 +291,7 @@ var controller = (function(budgetCtrl, UICtrl) {
 		// document.querySelector(DOM.inputType).addEventListener('change', UICtrl.changedType);
 	};
 	//
-	var updateBudget = function() {
+	var updateBudget = function () {
 		// Calculate and update budget
 		budgetController.caculateBudget();
 		//return budget
@@ -251,7 +300,7 @@ var controller = (function(budgetCtrl, UICtrl) {
 		UICtrl.displayBudget(budget);
 	};
 
-	var ctrlAddItem = function() {
+	var ctrlAddItem = function () {
 		var input, newItem;
 
 		// 1. Get the field input data
@@ -272,7 +321,7 @@ var controller = (function(budgetCtrl, UICtrl) {
 		}
 	};
 	return {
-		init: function() {
+		init: function () {
 			console.log('Application has started.');
 			UICtrl.displayBudget({
 				budget: 0,
