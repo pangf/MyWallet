@@ -40,8 +40,8 @@ body {
 }
 
 .right { float: right; }
-.red { color: #FF5049 !important; }
-.red-focus:focus { border: 1px solid #FF5049 !important; }
+.blue { color:#007bff !important; }
+.blue-focus:focus { border: 2px solid #007bff !important; }
 
 /**********************************************
 *** TOP PART
@@ -180,7 +180,7 @@ body {
     font-size: 35px;
     background: none;
     border: none;
-    color: #007bff;
+    color:#ffc107;
     cursor: pointer;
     display: inline-block;
     vertical-align: middle;
@@ -194,7 +194,7 @@ body {
 .add__description:focus,
 .add__value:focus {
     outline: none;
-    border: 1px solid #007bff;
+    border: 2px solid #ffc107;
 }
 
 .add__btn:focus { outline: none; }

@@ -20,7 +20,7 @@ function getCurrentTime() {
 
 	$('.budget__title--month').html(monthArr[month] + ' ' + currentYear);
 }
-getCurrentTime();
+
 
 
 // BUDGET CONTROLLER
@@ -174,35 +174,38 @@ var UIController = (function () {
 		percentageLabel: '.budget__expenses--percentage',
 		container: '.container',
 		expensesPercLabel: '.item__percentage',
-		// dateLabel: '.budget__title--month'
+
 	};
+
 
 	var formatNumber = function (num, type) {
-		var numSplit, int, dec, type;
 		/*
-            + or - before number
-            exactly 2 decimal points
-            comma separating the thousands
+		  -/+ :type
+		  exactly decimal points
+		  1000=>+1,000
 
-            2310.4567 -> + 2,310.46
-            2000 -> + 2,000.00
-            */
-
+		*/
+		var numSplit, numInt, numDec, type;
 		num = Math.abs(num);
+		//  exactly decimal points
 		num = num.toFixed(2);
 
-		numSplit = num.split('.');
+		//divide 200.11=>200 11
+		numSplit = num.split(".");
 
-		int = numSplit[0];
-		if (int.length > 3) {
-			int = int.substr(0, int.length - 3) + ',' + int.substr(int.length - 3, 3); //input 23510, output 23,510
+		numInt = numSplit[0];
+		//add , if num>=100
+		if (numInt.length > 3) {
+			numInt = numInt.substring(0, numInt.length - 3) + ',' + numInt.substring(numInt.length - 3, numInt.length);
+
 		}
 
-		dec = numSplit[1];
+		numDec = numSplit[1];
 
-		return (type === 'exp' ? '-' : '+') + ' ' + int + '.' + dec;
+		return (type === "inc" ? "+" : "-") + " " + numInt + "." + numDec;
+
+
 	};
-
 	var nodeListForEach = function (list, callback) {
 		for (var i = 0; i < list.length; i++) {
 			callback(list[i], i);
@@ -266,11 +269,13 @@ var UIController = (function () {
 			fieldsArr[0].focus();
 		},
 		displayBudget: function (obj) {
-			$(DOMstrings.budgetLabel).html(obj.budget);
-			$(DOMstrings.incomeLabel).html(obj.totalInc);
-			$(DOMstrings.expensesLabel).html(obj.totalExp);
+
+			var type = obj.budget > 0 ? type = "inc" : type = "exp";
+			$(DOMstrings.budgetLabel).html(formatNumber(obj.budget, type));
+			$(DOMstrings.incomeLabel).html(formatNumber(obj.totalInc, type));
+			$(DOMstrings.expensesLabel).html(formatNumber(obj.totalExp, type));
 			if (obj.percentages > 0) {
-				$(DOMstrings.percentageLabel).html(obj.percentages+"%");
+				$(DOMstrings.percentageLabel).html(obj.percentages + "%");
 			} else {
 				$(DOMstrings.percentageLabel).html('---');
 			}
@@ -279,12 +284,7 @@ var UIController = (function () {
 			let fields = document.querySelectorAll(DOMstrings.expensesPercLabel);
 			console.log(fields);
 			//let fields=$(DOMstrings.expensesPercLabel);
-			let nodeListForEach = function (list, callback) {
-				for (let i = 0; i < list.length; i++) {
-					callback(list[i], i);
-				}
 
-			};
 			nodeListForEach(fields, function (current, index) {
 				if (percentages[index] > 0) {
 					$(current).html(percentages[index] + '%');
@@ -295,7 +295,20 @@ var UIController = (function () {
 			});
 
 
-	
+
+		},
+		changedType: function () {
+
+			var fields=document.querySelectorAll(
+				DOMstrings.inputType+','+
+				DOMstrings.inputDescription+","+
+				DOMstrings.inputValue
+			);
+			nodeListForEach(fields,function(current){
+				current.classList.toggle("blue-focus");
+				console.log("test");
+			});
+			$(DOMstrings.inputBtn).toggleClass("blue");
 		},
 
 		getDOMstrings: function () {
@@ -340,10 +353,9 @@ var controller = (function (budgetCtrl, UICtrl) {
 				updatePercentage();
 			}
 		});
+		//$(DOM.inputType).change(UICtrl.changedType);
 
-		// document.querySelector(DOM.container).addEventListener('click', ctrlDeleteItem);
-
-		// document.querySelector(DOM.inputType).addEventListener('change', UICtrl.changedType);
+		 document.querySelector(DOM.inputType).addEventListener('change', UICtrl.changedType);
 	};
 	//
 	var updateBudget = function () {
@@ -401,6 +413,8 @@ var controller = (function (budgetCtrl, UICtrl) {
 			});
 
 			setupEventListeners();
+			getCurrentTime();
+
 		}
 	};
 })(budgetController, UIController);
